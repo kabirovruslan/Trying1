@@ -1,6 +1,7 @@
 package com.mygdx.game;
 
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 public class Home { // класс дома(сейчас), в котором необходимо указать клетки, которые занимает дом
     Texture texture;
@@ -19,6 +20,7 @@ public class Home { // класс дома(сейчас), в котором не
         square2.isEmpty = true;
         square3.isEmpty = true;
     }
+
 
     @Override
     public String toString() {

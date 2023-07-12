@@ -27,7 +27,8 @@ public class MyGdxGame extends ApplicationAdapter {
 	Button goToBuyHome;
 	Sprite sprite;
 	int x,y;
-	boolean touchHome,touchSquare,pressedHome,draggedHome;
+	boolean touchHome,touchSquare,pressedHome,completedHome;
+	AddHomeButton button;
 
 	Square[][] mas;
 	boolean [][] isEmpty;
@@ -45,13 +46,14 @@ public class MyGdxGame extends ApplicationAdapter {
 		background2 = new Texture("background2.png");
 		home = new Texture("home.png");
 		red = new Texture("red.png");
+		button = new AddHomeButton(MyGdxGame.this);
 
 		goToBuyHome = new Button();
 
 		touchHome = false;
 		touchSquare = false;
 		pressedHome = false;
-		draggedHome = true;
+		completedHome = false;
 
 		SRC_WIDTH = Gdx.graphics.getWidth();
 		SRC_HEIGHT = Gdx.graphics.getHeight();
@@ -105,34 +107,36 @@ public class MyGdxGame extends ApplicationAdapter {
 
 		batch.draw(blue,0,0,SRC_WIDTH,SRC_HEIGHT);
 		batch.draw(background,(SRC_WIDTH-1920)/2 , (SRC_HEIGHT-1080)/2, 1920, 1080);
+		button.drawButton();
 
 		Gdx.input.setInputProcessor(new InputAdapter(){
 			@Override
-			public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+			public boolean touchUp(int screenX, int screenY, int pointer, int button1) {
 				if(pressedHome) {
 					if (screenX > (SRC_WIDTH - 1920) / 2 && screenX < (SRC_WIDTH - 1920) / 2 + 1920) {
 						x = screenX;
 						y = SRC_HEIGHT - screenY;
 						pressedHome = false;
-						draggedHome = true;
 						if (!isEmpty[(y - (SRC_HEIGHT - 1080) / 2) / 60][(x - (SRC_WIDTH - 1920) / 2) / 60]) {
 							x = (x - (SRC_WIDTH - 1920) / 2) / 60;
 							y = (y - (SRC_HEIGHT - 1080) / 2) / 60;
 							fillArray(1,y,x);
 							fillArray(2,y,x);
 
-							list.add(new Home(home,mas[y][x]));
-
-							if (y <= 5 || y == 9 || y == 10 || x == 10 || x == 11 || x == 22 || x == 23||mas[17-y][x].isEmpty) {
+							if (mas[17-y][x].isEmpty) {
 								x = 0;
 								y = 0;
 							} else {
 								x = (SRC_WIDTH - 1920) / 2 + x * 60;
 								y = (SRC_HEIGHT - 1080) / 2 + y * 60;
+								completedHome = true;
 
 							}
 						}
 					}
+				} else if (button.isBuilded&&completedHome){
+					list.add(new Home(home,new Square(x,y)));
+					completedHome = false;
 				}
 					return true;
 			}
@@ -140,14 +144,25 @@ public class MyGdxGame extends ApplicationAdapter {
 			public boolean touchDragged(int screenX, int screenY, int pointer) {
 				if (screenX>x && screenX<x+240 &&screenY>SRC_HEIGHT-y-240 && screenY<SRC_HEIGHT-y){
 					pressedHome = true;
-					draggedHome = true;
+
 					x=screenX;
 					y=SRC_WIDTH-screenY;
 
 				}
 				return true;
 			}
+
+			@Override
+			public boolean touchDown(int screenX, int screenY, int pointer, int button1) {
+				if (button.isPressed(screenX,screenY)){
+					button.isBuilded = true;
+				}
+				return true;
+			}
 		});
+		/*for (int i = 0;i<list.size();i++){
+			drawHome(i);
+		}*/
 		batch.draw(home,x,y);
 
 		batch.end();
@@ -206,5 +221,8 @@ public class MyGdxGame extends ApplicationAdapter {
 
 			}
 			return -1;
+		}
+		public void drawHome(int i){
+		batch.draw(list.get(i).texture,list.get(i).square.x,list.get(i).square.y);
 		}
 }
